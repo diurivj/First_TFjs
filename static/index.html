@@ -13,14 +13,23 @@
     <div class="container mt-5">
       <div class="row">
         <div class="col-12">
-          <div class="progress progress-bar progress-bar-striped progress-bar-animated mb-2">Loading Model</div>
+          <div class="progress progress-bar progress-bar-striped progress-bar-animated mb-2" style="display:none">
+            Loading Model
+          </div>
         </div>
       </div>
       <div class="row">
-        <div class="col-6">
+          <div class="col-3">
+              <select id="model-selector" class="custom-select">
+                  <option selected disabled>Select Model</option>
+                  <option>MobileNet</option>
+                  <option>VGG16</option>
+              </select>
+          </div>
+        <div class="col-8">
           <input id="image-selector" class="form-control border-0" type="file">
         </div>
-        <div class="col-6">
+        <div class="col-1">
           <button id="predict-button" class="btn btn-dark float-right">Predict</button>
         </div>
       </div>
@@ -42,7 +51,7 @@
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
   <script src="./imagenet_classes.js"></script>  
   <script src="./predict.js"></script>
 </body>

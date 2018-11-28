@@ -9,20 +9,22 @@ $('#image-selector').change(() => {
   reader.readAsDataURL(file);
 });
 
+$("#model-selector").change(function () {
+  loadModel($("#model-selector").val());
+});
+
 let model;
-(async () => {
-  model = await tf.loadModel('http://localhost:3000/tfjs-models/VGG16/model.json');
+async function loadModel(name) {
+  $('.progress-bar').show();
+  model = undefined;
+  model = await tf.loadModel(`http://localhost:3000/tfjs-models/${name}/model.json`);
   $('.progress-bar').hide();
-})();
+};
 
 $('#predict-button').click(async () => {
   let image = $("#selected-image").get(0);
-  let tensor = tf.fromPixels(image)
-      .resizeNearestNeighbor([224, 224])
-      .toFloat()
-      .expandDims();
-  
-  // More pre-processing to be added here later
+  let modelName = $('#mode-selector').val();
+  let tensor = preprocessImage(image, modelName);
   
   let predictions = await model.predict(tensor).data();
   let top5 = Array.from(predictions).map((probability, i) => {
@@ -38,5 +40,22 @@ $('#predict-button').click(async () => {
   top5.forEach(p => {
     $('#prediction-list').append(`<li>${p.className}: ${p.probability.toFixed(6)}</li>`);
   });
-
 })
+
+function preprocessImage(image, modelName) {
+  let tensor = tf.fromPixels(image).resizeNearestNeighbor([224, 224]).toFloat();
+
+  if (modelName === undefined) {
+    return tensor.expandDims();
+  } else if (modelName === 'VGG16') {
+    let meanImageNetRGB = tf.tensor1d([123.68, 116.779, 103.939]);
+    return tensor.sub(meanImageNetRGB).reverse(2).expandDims();
+  } else if (modelName === 'MobileNet') {
+    let offset = tf.scalar(127.5);
+    return tensor.sub(offset)
+        .div(offset)
+        .expandDims();
+  } else {
+    throw new Error('Unknown model name');  
+  }
+}
